@@ -20,12 +20,6 @@ func TestRunApplication(t *testing.T) {
 	tests := []testRunApplicationConfig{
 		{
 			config: cli.Config{
-				IsPrintUsage: true,
-			},
-			output: cli.PRINT_USAGE,
-		},
-		{
-			config: cli.Config{
 				NumTimes: 5,
 			},
 			input:  "",

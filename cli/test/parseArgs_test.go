@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"bytes"
 	"errors"
 	"testing"
 
@@ -8,41 +9,42 @@ import (
 )
 
 type testParseArgsConfig struct {
-	args   []string
-	config cli.Config
-	err    error
+	args     []string
+	err      error
+	numTimes int
 }
 
 func TestParseArgs(t *testing.T) {
 	test := []testParseArgsConfig{
 		{
-			args: []string{},
-			err:  errors.New("invalid number of arguments"),
+			args:     []string{"-h"},
+			err:      errors.New("flag: help requested"),
+			numTimes: 0,
 		},
 		{
-			args:   []string{"-h"},
-			err:    nil,
-			config: cli.Config{IsPrintUsage: true},
+			args:     []string{"-help"},
+			err:      errors.New("flag: help requested"),
+			numTimes: 0,
 		},
 		{
-			args:   []string{"-help"},
-			err:    nil,
-			config: cli.Config{IsPrintUsage: true},
+			args:     []string{"-n", "3"},
+			err:      nil,
+			numTimes: 3,
 		},
 		{
-			args:   []string{"3"},
-			err:    nil,
-			config: cli.Config{NumTimes: 3},
+			args:     []string{"-n", "abc"},
+			err:      errors.New(`invalid value "abc" for flag -n: parse error`),
+			numTimes: 0,
 		},
 		{
-			args:   []string{"abc"},
-			err:    errors.New(`strconv.Atoi: parsing "abc": invalid syntax`),
-			config: cli.Config{},
+			args:     []string{"-n", "3", "foo"},
+			err:      errors.New("positional arguments specified"),
+			numTimes: 3,
 		},
 	}
-
+	byteBuff := new(bytes.Buffer)
 	for _, tc := range test {
-		c, err := cli.ParseArgs(tc.args)
+		c, err := cli.ParseArgs(byteBuff, tc.args)
 
 		if tc.err != nil && err.Error() != tc.err.Error() {
 			t.Fatalf("Expected Err: %v, But got: %v\n", tc.err, err)
@@ -52,12 +54,10 @@ func TestParseArgs(t *testing.T) {
 			t.Fatalf("Expected nil err but got: %v\n", err)
 		}
 
-		if c.IsPrintUsage != tc.config.IsPrintUsage {
-			t.Fatalf("Expected Print Usage %v, but got : %v", tc.config.IsPrintUsage, c.IsPrintUsage)
+		if c.NumTimes != tc.numTimes {
+			t.Fatalf("Expected Num times %v, but got : %v", tc.numTimes, c.NumTimes)
 		}
 
-		if c.NumTimes != tc.config.NumTimes {
-			t.Fatalf("Expected Num times %v, but got : %v", tc.config.NumTimes, c.NumTimes)
-		}
+		byteBuff.Reset()
 	}
 }

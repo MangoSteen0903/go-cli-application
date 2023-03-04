@@ -8,18 +8,17 @@ import (
 )
 
 func main() {
-	config, err := cli.ParseArgs(os.Args[1:])
+	config, err := cli.ParseArgs(os.Stdout, os.Args[1:])
 
 	if err != nil {
 		fmt.Fprintln(os.Stdout, err)
-		cli.PrintUsage(os.Stdout)
+
 		os.Exit(1)
 	}
 	err = cli.ValidateArgs(config)
 
 	if err != nil {
 		fmt.Fprintln(os.Stdout, err)
-		cli.PrintUsage(os.Stdout)
 		os.Exit(1)
 	}
 
@@ -27,7 +26,6 @@ func main() {
 
 	if err != nil {
 		fmt.Fprintln(os.Stdout, err)
-		cli.PrintUsage(os.Stdout)
 		os.Exit(1)
 	}
 

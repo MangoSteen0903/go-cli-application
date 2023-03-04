@@ -3,44 +3,34 @@ package cli
 import (
 	"bufio"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"os"
-	"strconv"
+
+	"github.com/MangoSteen0903/go-cli-application/cli/util"
 )
 
 type Config struct {
 	NumTimes     int
+	FileLocation string
 	IsPrintUsage bool
 }
 
-var PRINT_USAGE = fmt.Sprintf(`Usage: %s <interger> [-h|-help]
-
-A Hello Application which prints the name you entered <integer> number of times.
-`, os.Args[0])
-
-func PrintUsage(w io.Writer) {
-	fmt.Fprint(w, PRINT_USAGE)
-}
-
-func ParseArgs(args []string) (Config, error) {
-	var numTimes int
-	var err error
+func ParseArgs(w io.Writer, args []string) (Config, error) {
 	c := Config{}
+	fs := flag.NewFlagSet("hello", flag.ContinueOnError)
+	fs.SetOutput(w)
+	fs.IntVar(&c.NumTimes, "n", 0, "Number of times to hello")
+	fs.StringVar(&c.FileLocation, "o", "", "File Location that you want to save")
+	err := fs.Parse(args)
 
-	if len(args) != 1 {
-		return c, errors.New("invalid number of arguments")
-	}
-
-	if args[0] == "-h" || args[0] == "-help" {
-		c.IsPrintUsage = true
-		return c, nil
-	}
-	numTimes, err = strconv.Atoi(args[0])
 	if err != nil {
 		return c, err
 	}
-	c.NumTimes = numTimes
+	if fs.NArg() != 0 {
+		return c, errors.New("positional arguments specified")
+	}
 	return c, nil
 }
 
@@ -77,14 +67,30 @@ func iterateName(w io.Writer, name string, c Config) {
 	}
 }
 
+func saveFile(c Config, name string) error {
+	fileName := fmt.Sprintf("%s.html", name)
+	fileTemplate := util.GetHTML(name)
+	file, err := os.Create(c.FileLocation + "/" + fileName)
+	if err != nil {
+		return err
+	}
+	w := bufio.NewWriter(file)
+	_, err = w.WriteString(fileTemplate)
+	if err != nil {
+		return err
+	}
+	w.Flush()
+	return nil
+}
 func RunApplication(w io.Writer, r io.Reader, c Config) error {
 
-	if c.IsPrintUsage {
-		PrintUsage(w)
-		return nil
-	}
 	result, err := getName(w, r)
 
+	if err != nil {
+		return err
+	}
+
+	err = saveFile(c, result)
 	if err != nil {
 		return err
 	}
