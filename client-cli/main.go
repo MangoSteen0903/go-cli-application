@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -35,7 +34,7 @@ func handleCommand(w io.Writer, args []string) error {
 		}
 	}
 
-	if errors.Is(err, cmd.ErrInvalidSubCommand) || errors.Is(err, cmd.ErrNotServerSpecified) || errors.Is(err, cmd.ErrInvalidMethods) {
+	if err != nil {
 		fmt.Fprintln(w, err)
 		printUsage(w)
 	}
