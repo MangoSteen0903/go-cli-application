@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/MangoSteen0903/go-cli-application/cli"
+	"github.com/MangoSteen0903/go-cli-application/hello-cli/cli"
 )
 
 type testRunApplicationConfig struct {

@@ -8,28 +8,47 @@ import (
 	"io"
 	"os"
 
-	"github.com/MangoSteen0903/go-cli-application/cli/util"
+	"github.com/MangoSteen0903/go-cli-application/hello-cli/util"
 )
 
 type Config struct {
 	NumTimes     int
 	FileLocation string
+	Name         string
 	IsPrintUsage bool
 }
+
+var ErrPosArgsSpecified = errors.New("more than one positional arguments specified")
 
 func ParseArgs(w io.Writer, args []string) (Config, error) {
 	c := Config{}
 	fs := flag.NewFlagSet("hello", flag.ContinueOnError)
 	fs.SetOutput(w)
-	fs.IntVar(&c.NumTimes, "n", 0, "Number of times to hello")
-	fs.StringVar(&c.FileLocation, "o", "", "File Location that you want to save")
+	fs.Usage = func() {
+		var usageString = `
+A Hello Application which prints the name you entered a specified number of times.
+
+Usage of %s: <options> [name]`
+		fmt.Fprintf(w, usageString, fs.Name())
+		fmt.Fprintln(w)
+		fmt.Fprintln(w, "Options: ")
+		fs.PrintDefaults()
+	}
+
+	fs.IntVar(&c.NumTimes, "n", 0, "Number of times that iterate your name.")
+	fs.StringVar(&c.FileLocation, "o", "", "Location that you want to save the file.")
 	err := fs.Parse(args)
 
 	if err != nil {
 		return c, err
 	}
-	if fs.NArg() != 0 {
-		return c, errors.New("positional arguments specified")
+
+	if fs.NArg() > 1 {
+		return c, ErrPosArgsSpecified
+	}
+
+	if fs.NArg() == 1 {
+		c.Name = fs.Arg(0)
 	}
 	return c, nil
 }
@@ -61,7 +80,7 @@ func getName(w io.Writer, r io.Reader) (string, error) {
 
 func iterateName(w io.Writer, name string, c Config) {
 	numTimes := c.NumTimes
-	msg := fmt.Sprintf("Hello %s!", name)
+	msg := fmt.Sprintf("Hello %s!", c.Name)
 	for i := 0; i < numTimes; i++ {
 		fmt.Fprintln(w, msg)
 	}
@@ -83,20 +102,16 @@ func saveFile(c Config, name string) error {
 	return nil
 }
 func RunApplication(w io.Writer, r io.Reader, c Config) error {
-
-	result, err := getName(w, r)
-
-	if err != nil {
-		return err
+	var err error
+	if len(c.Name) == 0 {
+		c.Name, err = getName(w, r)
+		if err != nil {
+			return err
+		}
 	}
 
-	err = saveFile(c, result)
-	if err != nil {
-		return err
-	}
-
-	iterateName(w, result, c)
-
+	iterateName(w, c.Name, c)
+	saveFile(c, c.Name)
 	return nil
 
 }

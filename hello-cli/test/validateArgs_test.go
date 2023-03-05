@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/MangoSteen0903/go-cli-application/cli"
+	"github.com/MangoSteen0903/go-cli-application/hello-cli/cli"
 )
 
 type testValidateArgsConfig struct {
