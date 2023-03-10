@@ -1,18 +1,19 @@
 package cmd
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
 )
 
 type htmlConfig struct {
-	method string
 	url    string
+	method string
 }
 
 func HandleHTML(w io.Writer, args []string) error {
-	var config htmlConfig
+	config := htmlConfig{}
 	fs := flag.NewFlagSet("html", flag.ContinueOnError)
 	fs.SetOutput(w)
 
@@ -26,21 +27,17 @@ http: <options> server`
 		fmt.Fprintln(w, "Options: ")
 		fs.PrintDefaults()
 	}
-
-	fs.StringVar(&config.url, "u", "", "A url that you want to retreive data")
-	fs.StringVar(&config.method, "method", "GET", "A method that you want to request on your url.")
+	fs.StringVar(&config.method, "method", "GET", "A method that you want to request.")
 
 	err := fs.Parse(args)
-
+	if fs.NArg() != 1 {
+		return errors.New("invalid number of positional argument")
+	}
 	if err != nil {
 		return err
 	}
+	config.url = fs.Arg(0)
 
-	if fs.NArg() != 1 {
-		return ErrNotURLSpecified
-	}
-
-	fmt.Fprintln(w, "Running HTML Command")
-
+	//Execute HTML Client
 	return nil
 }
