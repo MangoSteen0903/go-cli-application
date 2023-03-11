@@ -27,9 +27,9 @@ func handleCommand(w io.Writer, args []string) error {
 		err = cmd.ErrInvalidNumofArgs
 	} else {
 		switch args[0] {
-		case "html":
+		case "http":
 			err = cmd.HandleHTML(w, args[1:])
-			cmdType = "html"
+			cmdType = "http"
 		case "grpc":
 			err = cmd.HandlegRPC(w, args[1:])
 			cmdType = "grpc"

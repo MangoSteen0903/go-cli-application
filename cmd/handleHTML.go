@@ -4,16 +4,19 @@ import (
 	"flag"
 	"fmt"
 	"io"
+
+	"github.com/MangoSteen0903/go-cli-application/htmlClient"
 )
 
 type htmlConfig struct {
-	url    string
-	method string
+	url      string
+	method   string
+	filename string
 }
 
 func HandleHTML(w io.Writer, args []string) error {
 	config := htmlConfig{}
-	fs := flag.NewFlagSet("html", flag.ContinueOnError)
+	fs := flag.NewFlagSet("http", flag.ContinueOnError)
 	fs.SetOutput(w)
 
 	fs.Usage = func() {
@@ -27,7 +30,7 @@ http: <options> server`
 		fs.PrintDefaults()
 	}
 	fs.StringVar(&config.method, "method", "GET", "A method that you want to request.")
-
+	fs.StringVar(&config.filename, "filename", "test.json", "A Filename that you want to save it.")
 	err := fs.Parse(args)
 	if err != nil {
 		switch {
@@ -42,6 +45,9 @@ http: <options> server`
 		return ErrInvalidNumOfPositionalArgs
 	}
 	config.url = fs.Arg(0)
-	//Execute HTML Client
+	err = htmlClient.GetJsonData(config.url, config.filename)
+	if err != nil {
+		return err
+	}
 	return nil
 }
