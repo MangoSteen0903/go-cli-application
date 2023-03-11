@@ -1,4 +1,4 @@
-package htmlClient
+package httpClient
 
 import (
 	"fmt"

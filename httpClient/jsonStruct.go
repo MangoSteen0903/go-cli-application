@@ -1,4 +1,4 @@
-package htmlClient
+package httpClient
 
 type QuotesJson struct {
 	Id     int    `json:"id"`

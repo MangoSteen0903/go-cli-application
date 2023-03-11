@@ -1,4 +1,4 @@
-package htmlClient
+package httpClient
 
 func GetJsonData(url string, filename string) error {
 	var err error

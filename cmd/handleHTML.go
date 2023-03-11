@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/MangoSteen0903/go-cli-application/htmlClient"
+	"github.com/MangoSteen0903/go-cli-application/httpClient"
 )
 
 type htmlConfig struct {
@@ -45,7 +45,7 @@ http: <options> server`
 		return ErrInvalidNumOfPositionalArgs
 	}
 	config.url = fs.Arg(0)
-	err = htmlClient.GetJsonData(config.url, config.filename)
+	err = httpClient.GetJsonData(config.url, config.filename)
 	if err != nil {
 		return err
 	}
