@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -30,14 +29,19 @@ http: <options> server`
 	fs.StringVar(&config.method, "method", "GET", "A method that you want to request.")
 
 	err := fs.Parse(args)
-	if fs.NArg() != 1 {
-		return errors.New("invalid number of positional argument")
-	}
 	if err != nil {
-		return err
+		switch {
+		case err.Error() == ErrHelpRequest.Error():
+			return nil
+		default:
+			return err
+		}
+	}
+
+	if fs.NArg() != 1 {
+		return ErrInvalidNumOfPositionalArgs
 	}
 	config.url = fs.Arg(0)
-
 	//Execute HTML Client
 	return nil
 }

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -31,11 +30,17 @@ grpc: <options> server`
 	fs.StringVar(&config.method, "method", "", "A method that you want to request.")
 	fs.StringVar(&config.body, "body", "", "grpc Body.")
 	err := fs.Parse(args)
-	if fs.NArg() != 1 {
-		return errors.New("invalid number of positional argument")
-	}
 	if err != nil {
-		return err
+		switch {
+		case err.Error() == ErrHelpRequest.Error():
+			return nil
+		default:
+			return err
+		}
+	}
+
+	if fs.NArg() != 1 {
+		return ErrInvalidNumOfPositionalArgs
 	}
 	config.server = fs.Arg(0)
 
